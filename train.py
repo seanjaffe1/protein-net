@@ -46,9 +46,10 @@ def main():
     for i in range(start_step, start_step + config.num_steps):
         xs, ys = data_loader.load_batch(config.batch_size, train=True)
         train_step.run(session=sess, feed_dict={model.x: xs, model.y_: ys, model.keep_prob: config.keep_prob})
+
         train_error = loss.eval(session=sess, feed_dict={model.x: xs, model.y_: ys, model.keep_prob: 1.0})
         print("Step %d, train loss %g" % (i, train_error))
-        
+
         '''
         TODO: add extra logging
         if i % 10 == 0:

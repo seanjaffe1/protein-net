@@ -61,7 +61,7 @@ class CNNModel(object):
 
         self.W_fc5 = weight_variable([10, 1])
         self.b_fc5 = bias_variable([1])
-        y = tf.multiply(tf.nn.relu(tf.matmul(self.h_fc4_drop, self.W_fc5) + self.b_fc5), 2, name='y')
+        y = tf.atan(tf.matmul(self.h_fc4_drop, self.W_fc5) + self.b_fc5, name='y') #todo change to relu
 
         self.x = x
         self.y_ = y_

@@ -24,7 +24,7 @@ class DataLoader(object):
         for i in range(1000):
             c = np.random.random_sample((100, 24))
             xs.append(c)
-            ys.append(.5)
+            ys.append(.9)
         print("Generated Data!")
         
         self.num_sampels = len(xs)

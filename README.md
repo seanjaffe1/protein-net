@@ -1,0 +1,2 @@
+# Training
+`python train.py`

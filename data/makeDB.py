@@ -1,19 +1,23 @@
 import pandas as pd
+import numpy as np
+
 import pyrosetta
 from pyrosetta.toolbox import pose_from_rcsb
 from pyrosetta.teaching import *
-import argparse
 pyrosetta.init()
+
+import argparse
 import os.path
 import csv
 import argparse
+from tqdm import tqdm
 
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("id_file", help="Text file containing all pdbs you wish to put in database")
-parser.add_argument("curr_file", help="Other file to include in database (will not be overwritten unless is the same as outfile)")
-parser.add_argument("out_file", help="File to write db to")
+parser.add_argument("--id_file", help="Text file containing all pdbs you wish to put in database")
+parser.add_argument("--curr_file", default=None, help="Other file to include in database (will not be overwritten unless is the same as outfile)")
+parser.add_argument("--out_file", help="File to write db to")
 args = parser.parse_args()
 
 pdb_ids_file = args.id_file #'cameo_ids.txt'
@@ -41,17 +45,16 @@ score_types = [fa_atr,
          p_aa_pp,
          yhh_planarity,
          ref, rama_prepro]
-column_names=['pdb_id', 'seq', 'total'] + [str(s)[10:] for s in score_types]
-# TODO change to: column_names=['pdb_id','total', 'seq', 'phi','psi','chi'] + [str(s)[10:] for s in score_types]
+column_names=['pdb_id', 'total','len','seq','phi', 'psi'] + [str(s)[10:] for s in score_types]
 
 
 # load previous dataset
-if os.path.isfile(curr_data_file):
+if curr_data_file is not None and os.path.isfile(curr_data_file):
     print("reading")
     curr_db = pd.read_csv(curr_data_file, index_col=0)
 else:
 
-curr_db = pd.DataFrame(columns=column_names, dtype=float)
+    curr_db = pd.DataFrame(columns=column_names, dtype=float)
 # Load Queries
 with open(pdb_ids_file, 'r') as f:
     ids_to_query = set(f.read().splitlines())
@@ -66,12 +69,24 @@ i = 0
 for pdbid in ids_to_query:
     i += 1
     if i % 50 == 0:
-        print(i, " done")
+        print(str(i), "done")
         curr_db.to_csv(out_file)
     pose = pose_from_rcsb(pdbid)
     total = scorefxn(pose)
+    phis = np.zeros(pose.total_residue())
+    psis = np.zeros(pose.total_residue())
+    for j in range(1, pose.total_residue() + 1):
+        try:
+            phis[j-1] = pose.phi(j)
+        except:
+            phis[j-1] = np.nan
+        try:
+            psis[j-1] = pose.psi(j)
+        except:
+            psis[j-1] = np.nan
+    length = pose.total_residue()
     sub_scores = [pose.energies().total_energies()[sub_score] for sub_score in score_types]
-    temp_db = pd.DataFrame([[pdbid, pose.sequence(), total] + sub_scores], columns=column_names, index=[len(curr_db)])
+    temp_db = pd.DataFrame([[pdbid, total, length, pose.sequence(), phis, psis] + sub_scores], columns=column_names, index=[len(curr_db)])
     curr_db = pd.concat([curr_db, temp_db], axis=0)
     
 # Write db to out file

@@ -18,8 +18,8 @@ class DataLoader(object):
         total = 0
         
         # Load data from wherever TODO
-        #with open(self.config.data_dir + '/' + self.config.data_file) as f:
-        #    db = pd.read_csv(curr_data_file, index_col=0)
+        with open(self.config.data_dir + '/' + self.config.data_file) as f:
+            db = pd.read_csv(curr_data_file, index_col=0)
             
         for i in range(1000):
             c = np.random.random_sample((100, 24))

@@ -40,7 +40,8 @@ def main():
         merged_summary = tf.merge_all_summaries()
         summary_writer = tf.train.SummaryWriter(args.logdir, graph=tf.get_default_graph())
         
-    min_loss = 1.0
+    min_loss = 99999999.0
+    min_test_loss = 999999999.0
     data_loader = DataLoader(config)
     
     for i in range(start_step, start_step + config.num_steps):
@@ -48,8 +49,15 @@ def main():
         train_step.run(session=sess, feed_dict={model.x: xs, model.y_: ys, model.keep_prob: config.keep_prob})
 
         train_error = loss.eval(session=sess, feed_dict={model.x: xs, model.y_: ys, model.keep_prob: 1.0})
+        min_loss = min(train_error, min_loss)
         print("Step %d, train loss %g" % (i, train_error))
-
+        
+        
+        if i%15==0:
+            xs_t, ys_t = data_loader.load_batch(config.batch_size, train=False)
+            test_loss = loss.eval(session=sess, feed_dict={model.x: xs_t, model.y_: ys_t, model.keep_prob: 1.0})
+            min_test_loss = min(test_loss, min_test_loss)
+            print("Test Loss", test_loss)
         '''
         TODO: add extra logging
         if i % 10 == 0:
@@ -57,5 +65,11 @@ def main():
             val_error = loss.eval(feed_dict={model.x: xs, model.y_: ys, model.keep_prob: config.1.0})
             print("Step %d, train loss %g" % (i, train_error))
         '''
+    xs, ys = data_loader.load_batch(config.batch_size, train=True)
+    xs_t, ys_t = data_loader.load_batch(config.batch_size, train=False)
+    test_loss = loss.eval(session=sess, feed_dict={model.x: xs_t, model.y_: ys_t, model.keep_prob: 1.0})
+    min_test_loss = min(test_loss, min_test_loss)
+    print("Min Loss:", min_loss, "Min Test Loss", min_test_loss)
+    
 if __name__ == '__main__':
     main()

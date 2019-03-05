@@ -16,25 +16,25 @@ def conv2d(x, W, stride):
 class CNNModel(object):
     
     def __init__(self, dropout_prob=0.0, batch_norm=False, is_trianing=True):
-        x = tf.placeholder(tf.float32, shape=[None, None, 23, 1], name='x')
+        x = tf.placeholder(tf.float32, shape=[None, None, 24, 1], name='x')
         y_= tf.placeholder(tf.float32, shape=[None, 1])
         
         keep_prob = tf.placeholder(tf.float32, name='keep_prob')
         x_val = x
         
-        self.W_conv1 = weight_variable([5, 23, 1, 16])  #h, w, #in channels, #out channels
+        self.W_conv1 = weight_variable([5, 24, 1, 16])  #h, w, #in channels, #out channels
         self.b_conv1 = bias_variable([16])
-        self.h_conv1 = tf.nn.relu(conv2d(x_val, self.W_conv1,1) + self.b_conv1)
+        self.h_conv1 = tf.nn.relu(conv2d(x_val, self.W_conv1,3) + self.b_conv1)
         
         self.W_conv2 = weight_variable([5, 1, 16, 20])
         self.b_conv2 = bias_variable([20])
-        self.h_conv2 = tf.nn.relu(conv2d(self.h_conv1, self.W_conv2,1) + self.b_conv2)
+        self.h_conv2 = tf.nn.relu(conv2d(self.h_conv1, self.W_conv2,3) + self.b_conv2)
                 
         #TODO why 1840?
-        self.W_fc1 = weight_variable([1840, 1164]) # in, out
+        self.W_fc1 = weight_variable([8000, 1164]) # in, out
         self.b_fc1 = bias_variable([1164])
         
-        self.h_conv2_flat = tf.reshape(self.h_conv2, [-1,1840]) 
+        self.h_conv2_flat = tf.reshape(self.h_conv2, [-1,8000]) 
         self.h_fc1 = tf.nn.relu(tf.matmul(self.h_conv2_flat, self.W_fc1) + self.b_fc1)
         
         self.W_fc2 = weight_variable([1164, 100])

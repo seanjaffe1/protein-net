@@ -1,0 +1,4 @@
+*.pdb
+data/**
+!makeDB.txt
+*.pyc

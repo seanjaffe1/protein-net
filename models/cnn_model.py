@@ -16,13 +16,13 @@ def conv2d(x, W, stride):
 class CNNModel(object):
     
     def __init__(self, dropout_prob=0.0, batch_norm=False, is_trianing=True):
-        x = tf.placeholder(tf.float32, shape=[None, 100, 24, 1], name='x')
+        x = tf.placeholder(tf.float32, shape=[None, None, 23, 1], name='x')
         y_= tf.placeholder(tf.float32, shape=[None, 1])
         
         keep_prob = tf.placeholder(tf.float32, name='keep_prob')
         x_val = x
         
-        self.W_conv1 = weight_variable([5, 24, 1, 16])  #h, w, #in channels, #out channels
+        self.W_conv1 = weight_variable([5, 23, 1, 16])  #h, w, #in channels, #out channels
         self.b_conv1 = bias_variable([16])
         self.h_conv1 = tf.nn.relu(conv2d(x_val, self.W_conv1,1) + self.b_conv1)
         
@@ -61,7 +61,7 @@ class CNNModel(object):
 
         self.W_fc5 = weight_variable([10, 1])
         self.b_fc5 = bias_variable([1])
-        y = tf.atan(tf.matmul(self.h_fc4_drop, self.W_fc5) + self.b_fc5, name='y') #todo change to relu
+        y = tf.nn.relu(tf.matmul(self.h_fc4_drop, self.W_fc5) + self.b_fc5, name='y') #todo change to relu
 
         self.x = x
         self.y_ = y_

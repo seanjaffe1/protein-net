@@ -2,6 +2,18 @@ import random
 import pandas as pd
 import numpy as np
 
+
+def amino_one_hot(seq):
+    encodings = {'G':1, 'A':2, 'L':3, 'M':4, 'F':5, 'W':6, 'K':7, 'Q':8, 'E':9, 'S':10,
+                 'P':11,'V':12,'I':13,'C':14,'Y':15,'H':16,'R':17,'N':18,'D':19,'T':0}
+    encoding = np.zeros((len(seq), 21))
+    for i in range(len(seq)):
+        if seq[i] in encodings.keys():
+            encoding[i][encodings[seq[i]]] = 1 
+        else:
+            encoding[i][21]=1
+    return encoding
+
 class DataLoader(object):
     def __init__(self, config):
         self.config = config
@@ -17,15 +29,18 @@ class DataLoader(object):
         
         total = 0
         
-        # Load data from wherever TODO
-        with open(self.config.data_dir + '/' + self.config.data_file) as f:
-            db = pd.read_csv(curr_data_file, index_col=0)
-            
-        for i in range(1000):
-            c = np.random.random_sample((100, 24))
-            xs.append(c)
-            ys.append(.9)
-        print("Generated Data!")
+        # Load data
+        db = pd.read_csv(self.config.data_dir + '/' + self.config.data_file, index_col=0)
+        for i in db.index.values:
+            curr_frame = db.iloc[i]
+            total = curr_frame.total
+            length = curr_frame.len
+            angles = np.loadtxt(self.config.data_dir + '/' + curr_frame.pdb_id + '.angles.txt', delimiter=',')
+            seq = amino_one_hot(curr_frame.seq)
+            length
+            xs.append([seq, angles, length])
+            ys.append(total)
+
         
         self.num_sampels = len(xs)
         
@@ -44,23 +59,49 @@ class DataLoader(object):
         
     # Load a single batch
     def load_batch(self, batch_size, train=True):
-        x_out = []
-        y_out = []
         if train:
-            for i in range(0, batch_size):
-                # TODO load pdb data here
-                
-                x_out.append(self.train_xs[(self.train_batch_pointer + i) % self.num_train_samples])
-                y_out.append(self.train_ys[(self.train_batch_pointer + i) % self.num_train_samples])
+            return self.load_batch_s(batch_size, ptr=self.train_batch_pointer, xs=self.train_xs, ys=self.train_ys)
+        else:
+            return self.load_batch_s(batch_size, ptr=self.test_batch_pointer, xs=self.test_xs, ys=self.test_ys)
+    
+    def load_batch_s(self, batch_size, ptr, xs, ys, train=True):
+        max_len = 0
+        #a = [xs[i][2] for i in range(ptr % len(xs), (ptr  + batch_size)% len(xs))]
+        #print(type(a), type(a[0]), a)
+        '''
+        if ptr % len(xs) < (ptr + batch_size) % len(xs):
+            max_len = max(np.max([xs[i][2] for i in range(ptr % len(xs), len(xs))]), 
+                                  np.max([xs[i][2] for i in range(0, (ptr % len(xs) + batch_size) % len(xs))]))
+        else:
+            print(ptr, len(xs), batch_size)
+            max_len = np.max([xs[i][2] for i in range(ptr % len(xs), (ptr  + batch_size)% len(xs))])
+        '''
+        max_len=100
+        x_out = np.zeros((batch_size, int(max_len), 23))
+        y_out = []
+
+        for i in range(0, batch_size):
+            # TODO load pdb data here
+            x = xs[(ptr + i) % len(xs)]
+            
+            #Use the following when you figured out how to do variable sizes
+            '''
+            x_out[i,0:int(x[2]),:21] = x[0]
+            x_out[i,0:int(x[2]), 21] = x[1][0]
+            x_out[i,0:int(x[2]), 22] = x[1][1]
+            '''
+            x_out[i,0:max_len,:21] = x[0][0:max_len]
+            x_out[i,0:max_len, 21] = x[1][0][0:max_len]
+            x_out[i,0:max_len, 22] = x[1][1][0:max_len]
+            
+            
+            y_out.append(ys[(ptr + i) % len(xs)])
+        if train:
             self.train_batch_pointer += batch_size
         else:
-            for i in range(0, batch_size):
-            # TODO load pdb data here
-                x_out.append(self.test_xs[self.test_batch_pointer + i % self.num_test_samples])
-                y_out.append(self.test_ys[self.test_batch_pointer + i % self.num_test_samples])
             self.test_batch_pointer += batch_size
 
-        x_out = np.array(x_out).reshape(self.config.batch_size, 100, 24, 1)
+        x_out = np.array(x_out).reshape(self.config.batch_size, int(max_len), 23, 1)
         y_out = np.array(y_out).reshape(self.config.batch_size, 1)
         return x_out, y_out
     

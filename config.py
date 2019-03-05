@@ -1,12 +1,12 @@
 class config(object):
 	def __init__(self):
-		self.datda_dir = 'data'
-		self.data_file = 'cameo_scores.csv'
+		self.data_dir = 'data/test_data'
+		self.data_file = 'scores.csv'
 		self.restore_dir = None
 		self.restore_file = None
-		self.logdir = "./train_model"
+		self.logdir = "./train_model_test"
         
-		self.batch_size = 10   
+		self.batch_size = 1 
 		self.train_percent = 0.8
 		self.learning_rate = .001
 		self.l2_reg = 0.0

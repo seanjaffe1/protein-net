@@ -1,2 +1,3 @@
-model_checkpoint_path: "model-step-50-val-6.92170e+06.ckpt"
-all_model_checkpoint_paths: "model-step-50-val-6.92170e+06.ckpt"
+model_checkpoint_path: "model-step-100-val-6.9847e+06.ckpt"
+all_model_checkpoint_paths: "model-step-50-val-7.14152e+06.ckpt"
+all_model_checkpoint_paths: "model-step-100-val-6.9847e+06.ckpt"

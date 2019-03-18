@@ -7,8 +7,11 @@ import argparse
 import json
 import numpy as np
 import time
-from sklearn.metrics import mean_absolute_error
 
+
+def mean_absolute_percentage_error(y_true, y_pred): 
+
+    return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
 config = config()
 
 def get_arguments():
@@ -39,6 +42,9 @@ def main():
             model = CNNModel4()
     elif args.modelno == 10:
             model = CNNModel10()
+    # size 4000 models
+    elif args.modelno == 9:
+            model = CNNModel9()
     else:
         print("Invalide model no")
         raise
@@ -84,10 +90,10 @@ def main():
         preds =model.y.eval(session=sess, feed_dict={model.x: xs,  model.keep_prob: 1.0})
         #for i in range(10):
         #    print(preds[i], ys[i])
-        if config.modelno == 10:
-            mean_error = mean_absolute_error(np.array(preds[:,0], dtype=float), np.array(ys[:,0], dtype=float))
+        if config.modelno >= 10:
+            mean_error = mean_absolute_percentage_error(np.array(ys[:,0], dtype=float), np.array(preds[:,0], dtype=float))
         else:
-            mean_error = mean_absolute_error(np.array(preds, dtype=float), np.array(ys, dtype=float))
+            mean_error = mean_absolute_percentage_error(np.array(ys, dtype=float), np.array(preds, dtype=float))
 
 
         errors.append(mean_error)

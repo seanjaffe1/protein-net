@@ -10,7 +10,6 @@ import argparse
 import os.path
 import csv
 import argparse
-from tqdm import tqdm
 
 
 
@@ -77,7 +76,10 @@ for pdbid in ids_to_query:
     if i % 50 == 0:
         print(str(i), "done")
         curr_db.to_csv(out_file)
-    pose = pose_from_rcsb(pdbid)
+    try:
+        pose = pose_from_rcsb(pdbid)
+    except:
+        continue
     total = scorefxn(pose)
     phis = np.zeros(pose.total_residue())
     psis = np.zeros(pose.total_residue())

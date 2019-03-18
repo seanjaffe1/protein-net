@@ -4,3 +4,4 @@ from .cnn_model2 import CNNModel2
 from .cnn_model3 import CNNModel3
 from .cnn_model4 import CNNModel4
 from .cnn_model10 import CNNModel10
+from .cnn_model9 import CNNModel9

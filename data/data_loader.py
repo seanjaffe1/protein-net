@@ -36,12 +36,16 @@ class DataLoader(object):
             total = curr_frame.total
             length = curr_frame.len
             angles = np.loadtxt(self.config.data_dir + '/' + curr_frame.pdb_id + '.angles.txt', delimiter=',')
-            seq = amino_one_hot(curr_frame.seq)
-            if np.isnan(angles).any() :
+            
+            if np.isnan(angles).any() or length > 4000 :
+                continue
+            try:
+                seq = amino_one_hot(curr_frame.seq)
+            except:
                 continue
             
             xs.append([seq, angles, length])
-            if self.config.modelno == 10:
+            if self.config.modelno >= 10:
                     ys.append(np.array([curr_frame.total, curr_frame.fa_atr, curr_frame.fa_rep, curr_frame.fa_sol, curr_frame.fa_intra_rep, curr_frame.fa_intra_sol_xover4, curr_frame.lk_ball_wtd, curr_frame.fa_elec, curr_frame.pro_close, curr_frame.hbond_sr_bb, curr_frame.hbond_lr_bb, curr_frame.hbond_bb_sc, curr_frame.hbond_sc, curr_frame.dslf_fa13, curr_frame.omega, curr_frame.fa_dun, curr_frame.p_aa_pp, curr_frame.yhh_planarity, curr_frame.ref, curr_frame.rama_prepro]))
             
                               
@@ -50,6 +54,7 @@ class DataLoader(object):
 
         
         self.num_samples = len(xs)
+        print("NUMBER OF SAMPLES", self.num_samples)
         
         xs = np.array(xs)
         ys = np.array(ys)
@@ -93,7 +98,7 @@ class DataLoader(object):
             print(ptr, len(xs), batch_size)
             max_len = np.max([xs[i][2] for i in range(ptr % len(xs), (ptr  + batch_size)% len(xs))])
         '''
-        max_len=3612
+        max_len=4000
         x_out = np.zeros((batch_size, int(max_len), 24))
         y_out = []
 
@@ -115,7 +120,7 @@ class DataLoader(object):
             self.test_batch_pointer += batch_size
 
         x_out = np.array(x_out).reshape(batch_size, int(max_len), 24, 1)
-        if self.config.modelno == 10:
+        if self.config.modelno >= 10:
             y_out = np.array(y_out).reshape(batch_size, 20)
         else:
             y_out = np.array(y_out).reshape(batch_size, 1)

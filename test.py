@@ -6,6 +6,8 @@ import os
 import pandas as pd
 #import matplotlib.pyplot as plt
 from data import DataLoader
+from scipy.stats.stats import pearsonr   
+
 
 config=config()
 data_loader = DataLoader(config)
@@ -27,4 +29,6 @@ loss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(model.y_, model.y))))
 val_loss = loss.eval(session=sess, feed_dict={model.x: xs, model.y_: ys, model.keep_prob: 1.0})
 print("Val Loss", val_loss)
 y_hats = model.y.eval(session=sess, feed_dict={model.x: xs,  model.keep_prob: 1.0})
-print(min(y_hats))
+print(ys.shape, y_hats.shape)
+np.savetxt('pred.txt', np.array([np.squeeze(ys), np.squeeze(y_hats)]))
+print(ys[0], y_hats[0])

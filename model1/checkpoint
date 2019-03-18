@@ -1,0 +1,6 @@
+model_checkpoint_path: "model-step-460-val-400659.ckpt"
+all_model_checkpoint_paths: "model-step-400-val-1.6902e+06.ckpt"
+all_model_checkpoint_paths: "model-step-410-val-1.31974e+06.ckpt"
+all_model_checkpoint_paths: "model-step-440-val-1.03394e+06.ckpt"
+all_model_checkpoint_paths: "model-step-450-val-551887.ckpt"
+all_model_checkpoint_paths: "model-step-460-val-400659.ckpt"

@@ -1,0 +1,4 @@
+model_checkpoint_path: "model-step-40-val-2.24653e+07.ckpt"
+all_model_checkpoint_paths: "model-step-10-val-2.28548e+07.ckpt"
+all_model_checkpoint_paths: "model-step-20-val-2.2483e+07.ckpt"
+all_model_checkpoint_paths: "model-step-40-val-2.24653e+07.ckpt"

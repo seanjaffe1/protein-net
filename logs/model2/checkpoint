@@ -1,0 +1,2 @@
+model_checkpoint_path: "model-step-10-val-2.30948e+07.ckpt"
+all_model_checkpoint_paths: "model-step-10-val-2.30948e+07.ckpt"

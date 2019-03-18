@@ -41,20 +41,28 @@ class DataLoader(object):
                 continue
             
             xs.append([seq, angles, length])
-            ys.append(total)
+            if self.config.modelno == 10:
+                    ys.append(np.array([curr_frame.total, curr_frame.fa_atr, curr_frame.fa_rep, curr_frame.fa_sol, curr_frame.fa_intra_rep, curr_frame.fa_intra_sol_xover4, curr_frame.lk_ball_wtd, curr_frame.fa_elec, curr_frame.pro_close, curr_frame.hbond_sr_bb, curr_frame.hbond_lr_bb, curr_frame.hbond_bb_sc, curr_frame.hbond_sc, curr_frame.dslf_fa13, curr_frame.omega, curr_frame.fa_dun, curr_frame.p_aa_pp, curr_frame.yhh_planarity, curr_frame.ref, curr_frame.rama_prepro]))
+            
+                              
+            else:
+                ys.append(total)
 
         
-        self.num_sampels = len(xs)
+        self.num_samples = len(xs)
         
-        d = list(zip(xs, ys))
-        random.shuffle(d)
-        xs, ys = zip(*d)
+        xs = np.array(xs)
+        ys = np.array(ys)
         
-        self.train_xs = xs[:int(len(xs) * self.config.train_percent)]
-        self.train_ys = ys[:int(len(ys) * self.config.train_percent)]
+        indices = np.arange(self.num_samples)
+        trains = np.fromfile(self.config.data_dir + '/train.txt', sep ='\n').astype(int)
+        train_mask = np.isin(indices, trains)
+
+        self.train_xs = xs[train_mask]
+        self.train_ys = ys[train_mask]
         
-        self.test_xs = xs[int(len(xs) * (1-self.config.train_percent)):]
-        self.test_ys = ys[int(len(ys) * (1-self.config.train_percent)):]
+        self.test_xs = xs[train_mask == False]
+        self.test_ys = ys[train_mask == False]
         
         self.num_train_samples = len(self.train_xs)
         self.num_test_samples = len(self.test_xs)
@@ -65,8 +73,12 @@ class DataLoader(object):
     # Load a single batch
     def load_batch(self, batch_size, train=True):
         if train:
+            if batch_size == -1:
+                batch_size = self.num_train_samples
             return self.load_batch_s(batch_size, ptr=self.train_batch_pointer, xs=self.train_xs, ys=self.train_ys)
         else:
+            if batch_size == -1:
+                batch_size = self.num_test_samples
             return self.load_batch_s(batch_size, ptr=self.test_batch_pointer, xs=self.test_xs, ys=self.test_ys)
     
     def load_batch_s(self, batch_size, ptr, xs, ys, train=True):
@@ -102,8 +114,11 @@ class DataLoader(object):
         else:
             self.test_batch_pointer += batch_size
 
-        x_out = np.array(x_out).reshape(self.config.batch_size, int(max_len), 24, 1)
-        y_out = np.array(y_out).reshape(self.config.batch_size, 1)
+        x_out = np.array(x_out).reshape(batch_size, int(max_len), 24, 1)
+        if self.config.modelno == 10:
+            y_out = np.array(y_out).reshape(batch_size, 20)
+        else:
+            y_out = np.array(y_out).reshape(batch_size, 1)
         return x_out, y_out
     
 

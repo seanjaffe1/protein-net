@@ -1,4 +1,4 @@
 *.pdb
-data/**
 !*py
 *.pyc
+*.ckpt*
